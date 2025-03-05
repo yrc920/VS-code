@@ -8,10 +8,10 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 //"${file}",
-                "*.c",
+                "*.c",//编译所有.c文件
                 "-o",
                 //"${fileDirname}\\${fileBasenameNoExtension}.exe"
-                "${fileDirname}\\a.exe"
+                "${fileDirname}\\a.exe"//编译生成a.exe
             ],
             "options": {
                 "cwd": "${fileDirname}"
