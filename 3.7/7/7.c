@@ -2,21 +2,26 @@
 int main()
 {
     int n,m,q;
+    int a[100001]={0};
+    int b[100001]={0};
+    int c=0,d=0;
     scanf("%d %d %d",&n,&m,&q);
-    for(int i=0;i<q;i++)
+    while(q--)
     {
         int x,y;
         scanf("%d %d",&x,&y);
-        if(x==0)
+        if(x==0&&!a[y])
         {
-            n--;
+            a[y]=1;
+            c++;
         }
-        else
+        else if(x==1&&!b[y])
         {
-            m--;
+            b[y]=1;
+            d++;
         }
     }
-    printf("%d\n",n*m);
+    printf("%d",(n-c)*(m-d));
     return 0;
 }
 
