@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             //"program": "输入程序名称，例如 ${workspaceFolder}/a.exe",
-            "program": "${fileDirname}\\a.exe",
+            "program": "${fileDirname}\\a.exe",//需要调试的可执行程序
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
