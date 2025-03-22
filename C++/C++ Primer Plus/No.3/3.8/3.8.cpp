@@ -16,3 +16,4 @@ int main()
     cout << million * mint << endl;  
     return 0;
 }
+
