@@ -8,7 +8,7 @@ int main()
     int limit;
     cin >> limit;
     int i;
-    for (i = limit; i;i--)
+    for (i = limit; i; i--)
         cout << "i = " << i << endl;
     cout << "Done now that i = " << i << endl;
     return 0;
