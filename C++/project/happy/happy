@@ -1,0 +1,267 @@
+#include <SFML/Graphics.hpp>
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <ctime>
+#include <cstdlib>
+#include <sstream>
+
+using namespace sf;
+
+// 粒子系统结构体
+struct Particle {
+    Vector2f position;
+    Vector2f velocity;
+    Color color;
+    float lifetime;
+    float size;
+};
+
+// 生成随机颜色
+Color getRandomColor() {
+    return Color(rand() % 256, rand() % 256, rand() % 256);
+}
+
+// 主函数
+int main() {
+    // 创建窗口
+    RenderWindow window(VideoMode(800, 600), "生日祝福程序", Style::Close);
+    window.setFramerateLimit(60);
+
+    // 加载字体
+    Font font;
+    if (!font.loadFromFile("arial.ttf")) {
+        // 如果找不到字体文件，使用默认字体
+        std::cerr << "无法加载字体文件，使用默认字体" << std::endl;
+    }
+
+    // 设置背景
+    RectangleShape background(Vector2f(800, 600));
+    background.setFillColor(Color(25, 25, 50));
+
+    // 创建粒子系统
+    std::vector<Particle> particles;
+    const int maxParticles = 500;
+
+    // 创建文本对象
+    Text title;
+    title.setFont(font);
+    title.setString("生日祝福程序");
+    title.setCharacterSize(48);
+    title.setFillColor(Color::Cyan);
+    title.setPosition(200, 50);
+    title.setStyle(Text::Bold);
+
+    Text instruction;
+    instruction.setFont(font);
+    instruction.setString("按空格键切换界面，ESC退出");
+    instruction.setCharacterSize(20);
+    instruction.setFillColor(Color::Yellow);
+    instruction.setPosition(250, 550);
+
+    // 生日祝福语
+    Text birthdayWish;
+    birthdayWish.setFont(font);
+    birthdayWish.setString("生日快乐！");
+    birthdayWish.setCharacterSize(70);
+    birthdayWish.setFillColor(Color::Green);
+    birthdayWish.setPosition(200, 200);
+    birthdayWish.setStyle(Text::Bold);
+
+    // 蛋糕图形
+    CircleShape cakeTop(80, 6);
+    cakeTop.setFillColor(Color(222, 184, 135)); // 棕色
+    cakeTop.setPosition(320, 250);
+    cakeTop.setOutlineThickness(3);
+    cakeTop.setOutlineColor(Color::Red);
+
+    RectangleShape cakeBody(Vector2f(200, 100));
+    cakeBody.setFillColor(Color(210, 180, 140)); // 浅棕色
+    cakeBody.setPosition(300, 350);
+    cakeBody.setOutlineThickness(3);
+    cakeBody.setOutlineColor(Color::Red);
+
+    CircleShape candle1(5);
+    candle1.setFillColor(Color::Red);
+    candle1.setPosition(350, 230);
+
+    CircleShape candle2(5);
+    candle2.setFillColor(Color::Blue);
+    candle2.setPosition(400, 230);
+
+    CircleShape candle3(5);
+    candle3.setFillColor(Color::Green);
+    candle3.setPosition(450, 230);
+
+    CircleShape candle4(5);
+    candle4.setFillColor(Color::Yellow);
+    candle4.setPosition(500, 230);
+
+    // 气球
+    std::vector<CircleShape> balloons;
+    for (int i = 0; i < 10; ++i) {
+        CircleShape balloon(20 + rand() % 20);
+        balloon.setFillColor(getRandomColor());
+        balloon.setPosition(rand() % 700, 600 + rand() % 100);
+        balloons.push_back(balloon);
+    }
+
+    // 烟花
+    std::vector<Particle> fireworks;
+
+    // 主循环变量
+    Clock clock;
+    int currentScreen = 0;
+    float balloonSpeed = 0.5f;
+
+    // 主循环
+    while (window.isOpen()) {
+        // 处理事件
+        Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == Event::Closed)
+                window.close();
+            if (event.type == Event::KeyPressed) {
+                if (event.key.code == Keyboard::Escape)
+                    window.close();
+                if (event.key.code == Keyboard::Space)
+                    currentScreen = (currentScreen + 1) % 4;
+            }
+        }
+
+        // 更新粒子系统
+        float dt = clock.restart().asSeconds();
+
+        // 添加新粒子
+        if (particles.size() < maxParticles) {
+            Particle p;
+            p.position = Vector2f(rand() % 800, 0);
+            p.velocity = Vector2f((rand() % 100) / 100.0f - 0.5f, (rand() % 100) / 20.0f + 1.0f);
+            p.color = getRandomColor();
+            p.lifetime = 3.0f + (rand() % 100) / 50.0f;
+            p.size = 2.0f + (rand() % 10);
+            particles.push_back(p);
+        }
+
+        // 更新粒子
+        for (auto& p : particles) {
+            p.position += p.velocity * 60.0f * dt;
+            p.lifetime -= dt;
+            p.velocity.y += 0.1f * dt * 60.0f;
+        }
+
+        // 移除死亡粒子
+        particles.erase(std::remove_if(particles.begin(), particles.end(),
+            [](const Particle& p) { return p.lifetime <= 0 || p.position.y > 600; }),
+            particles.end());
+
+        // 更新气球
+        for (auto& b : balloons) {
+            b.move(0, -balloonSpeed);
+            if (b.getPosition().y < -100) {
+                b.setPosition(rand() % 700, 600 + rand() % 100);
+                b.setFillColor(getRandomColor());
+            }
+        }
+
+        // 更新烟花
+        if (rand() % 100 < 3 && currentScreen == 3) {
+            Vector2f pos(rand() % 800, 600);
+            Color fireworkColor = getRandomColor();
+            
+            for (int i = 0; i < 100; ++i) {
+                Particle p;
+                p.position = pos;
+                float angle = (rand() % 360) * 3.14159f / 180.0f;
+                float speed = 2.0f + (rand() % 100) / 50.0f;
+                p.velocity = Vector2f(cos(angle) * speed, sin(angle) * speed);
+                p.color = fireworkColor;
+                p.lifetime = 2.0f + (rand() % 100) / 100.0f;
+                p.size = 2.0f + (rand() % 8);
+                fireworks.push_back(p);
+            }
+        }
+
+        // 更新烟花粒子
+        for (auto& p : fireworks) {
+            p.position += p.velocity * 60.0f * dt;
+            p.lifetime -= dt;
+            p.velocity.y += 0.1f * dt * 60.0f;
+        }
+
+        // 移除死亡烟花
+        fireworks.erase(std::remove_if(fireworks.begin(), fireworks.end(),
+            [](const Particle& p) { return p.lifetime <= 0; }),
+            fireworks.end());
+
+        // 绘制
+        window.clear();
+
+        // 绘制背景
+        window.draw(background);
+
+        // 绘制粒子（背景）
+        for (const auto& p : particles) {
+            CircleShape shape(p.size);
+            shape.setFillColor(p.color);
+            shape.setPosition(p.position);
+            window.draw(shape);
+        }
+
+        // 根据当前屏幕绘制不同内容
+        switch (currentScreen) {
+        case 0: // 欢迎界面
+            title.setString("生日祝福程序");
+            title.setFillColor(Color::Cyan);
+            window.draw(title);
+            break;
+
+        case 1: // 祝福语界面
+            birthdayWish.setString("生日快乐！");
+            birthdayWish.setFillColor(Color::Green);
+            window.draw(birthdayWish);
+            break;
+
+        case 2: // 蛋糕界面
+            window.draw(cakeBody);
+            window.draw(cakeTop);
+            window.draw(candle1);
+            window.draw(candle2);
+            window.draw(candle3);
+            window.draw(candle4);
+            birthdayWish.setString("许个愿吧！");
+            birthdayWish.setFillColor(Color::Yellow);
+            birthdayWish.setPosition(250, 200);
+            window.draw(birthdayWish);
+            break;
+
+        case 3: // 烟花界面
+            // 绘制气球
+            for (const auto& b : balloons) {
+                window.draw(b);
+            }
+            
+            // 绘制烟花
+            for (const auto& p : fireworks) {
+                CircleShape shape(p.size);
+                shape.setFillColor(p.color);
+                shape.setPosition(p.position);
+                window.draw(shape);
+            }
+            
+            birthdayWish.setString("生日快乐！");
+            birthdayWish.setFillColor(Color::Magenta);
+            birthdayWish.setPosition(200, 50);
+            window.draw(birthdayWish);
+            break;
+        }
+
+        // 绘制指令文本
+        window.draw(instruction);
+
+        // 显示绘制的内容
+        window.display();
+    }
+
+    return 0;
+}
