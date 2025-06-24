@@ -1,4 +1,3 @@
-#include <iostream>
 #include <ctime> //获取系统时间
 #include <algorithm> //更改时间格式
 #include "class.h"
@@ -12,14 +11,9 @@ string getTime() //获取当前时间
     return timeStr; //返回时间字符串
 }
 
-bool Basics::checkPassword(const string &p) const //检查密码是否正确
-{
-    return password == p; //返回密码是否正确
-}
-
 void Basics::Show() const //显示账户信息
 {
-    user.Show(); //显示用户信息
+    cout << "姓名: " << name << endl;
     cout << "卡号: " << cardNum << endl;
     cout << "余额: " << balance << endl;
 }
@@ -45,6 +39,7 @@ void Basics::addRecord(const string &t, const string &ty, double am, long long a
 
 void Basics::ShowRecords() const //显示交易记录
 {
+    cout << "交易记录:" << endl;
     for (const auto &record : records)
     {
         record.Show();
@@ -155,8 +150,7 @@ bool Credit::Withdraw(double amt) //取款--信用卡
     }
     else
     {
-        cout << "取款金额超过信用额度,取款失败！" << endl;
+        cout << "取款金额超过信用额度，取款失败！" << endl;
         return false;
     }
 }
-

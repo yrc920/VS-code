@@ -8,54 +8,87 @@ int main()
     initialize(); //初始化系统
     while(1)
     {
-        cout << "----------------------------" << endl;
-        cout << "| 欢迎使用银行管理系统！    |" << endl;
-        cout << "| 请选择您要办理的业务：    |" << endl;
-        cout << "| 1. 创建账户               |" << endl;
-        cout << "| 2. 存款                   |" << endl;
-        cout << "| 3. 取款                   |" << endl;
-        cout << "| 4. 显示账户信息           |" << endl;
-        cout << "| 5. 显示交易记录           |" << endl;
-        cout << "| 0. 退出                   |" << endl;
-        cout << "----------------------------" << endl;
-        cout << "请输入您的选择：";
-        int choice;
-        while(cin >> choice)
-        {
-            if (cin.fail()) //输入错误
-            {
-                cin.clear(); //清除错误标志
-                while(cin.get() != '\n'); //清除输入缓冲区
-                cout << "无效的输入，请重新输入：";
-            }
-            else if (choice < 0 || choice > 5) //输入范围错误
-            {
-                cout << "无效的选择，请重新输入：";
-            }
-            else
-                break; //输入正确，跳出循环
-        }
+        int choice = begin(); //显示菜单
         switch (choice)
         {
-            case 1:
-                build(); //创建账户
+            case 1: //用户登录
+            {
+                int index = enter1(); //登录
+                if (index == -1) //登录失败
+                {
+                    cout << "登录失败,请重新选择操作" << endl;
+                        break; //跳出循环
+                }
+                while(1)
+                {
+                    choice = majors(); //选择业务
+                    switch (choice)
+                    {
+                        case 1: //存款
+                            deposit(index);
+                            break;
+                        case 2: //取款
+                            withdraw(index);
+                            break;
+                        case 3: //查询账户信息
+                            show(index);
+                            break;
+                        case 4: //显示交易记录
+                            showRecord(index);
+                            break;
+                        case 5: //修改密码
+                            amendPassword(index);
+                            break;
+                        case 0: //退出系统
+                            save(); //保存账户信息
+                            cout << "正在退出登录! " << endl;
+                            break;
+                    }
+                    if (choice == 0) //退出用户模式
+                        break; //跳出循环
+                }
+            } //括号括起防止变量作用域混淆
                 break;
-            case 2:
-                deposit(); //存款
+            case 2: //管理员模式
+                if (!enter2()) //登录失败
+                {
+                    cout << "登录失败,请重新选择操作" << endl;
+                    break; //跳出循环
+                }
+                while(1)
+                {
+                    choice = regulate(); //选择管理员操作
+                    switch (choice)
+                    {
+                        case 1: //添加账户
+                            build();
+                            break;
+                        case 2: //删除账户
+                            del();
+                            break;
+                        case 3: //显示所有账户信息
+                            showAll();
+                            break;
+                        case 4: //显示所有交易记录
+                            showAllRecord();
+                            break;
+                        case 5: //修改账户信息
+                            amend();
+                            break;    
+                        case 0: //退出系统
+                            save(); //保存账户信息
+                            cout << "正在退出管理员模式! " << endl;
+                            break; //跳出循环
+                    }
+                    if (choice == 0) //退出管理员模式
+                        break; //跳出循环
+                }
                 break;
-            case 3:
-                withdraw(); //取款
-                break;
-            case 4:
-                show(); //显示账户信息
-                break;
-            case 5:
-                showRecord(); //显示交易记录
-                break;
-            case 0:
-                cout << "感谢使用银行管理系统！" << endl;
+            case 0: //退出系统
                 save(); //保存账户信息
-                return 0; //退出系统
+                cleanup(); //清理内存
+                cout << "感谢使用银行管理系统！" << endl;
+                return 0;
         }
     }
     return 0;

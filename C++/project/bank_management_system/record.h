@@ -1,5 +1,5 @@
-#ifndef RECORD_H__
-#define RECORD_H__
+#ifndef __RECORD_H__
+#define __RECORD_H__
 
 #include <string>
 
